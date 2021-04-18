@@ -15,7 +15,7 @@ async def main():
     with open('creds', 'r') as f:
         key = f.read()
 
-    r = SearchParamBuilder(api_key=key). \
+    params = SearchParamBuilder(api_key=key). \
         q('lofi hip-hop'). \
         order(SearchOrder.Rating.value). \
         type(SearchType.Video.value). \
@@ -23,16 +23,20 @@ async def main():
         max_results(50)
         # published_after(to_rfc_339_time(datetime.now(tz=UTC))). \
 
-    y = YoutubeLoader()
-    data = await y.search(r)
-    d = extract_youtube_search_response(data)
-    print(d)
-    await y.close_session()
+    loader = YoutubeLoader()
 
-    for item in d.youtube_search_items:
-        emails = parse_email(item.description)
-        if emails:
+    # Page token example
+    for i in range(10):
+        data = extract_youtube_search_response(await loader.search(params))
+
+        for item in data.youtube_search_items:
+            emails = parse_email(item.description)
+            if emails:
+                print(emails)
             print(emails)
-        print(emails)
+
+        params.page_token(data.next_page_token)
+
+    await loader.close_session()
 
 asyncio.run(main())
