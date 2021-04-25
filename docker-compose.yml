@@ -1,0 +1,55 @@
+networks:
+  newtwork-app:
+    driver: bridge
+volumes:
+  redis-data:
+  gafana-data:
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - newtwork-app
+    command: python -m youtube_parser
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - prometheus
+      - gafana
+    env_file:
+      - .env
+    environment:
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+
+  redis:
+    image: redis:6.2.1-alpine
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - newtwork-app
+
+  gafana:
+    image: grafana/grafana:7.3.0
+    networks:
+      - newtwork-app
+    ports:
+    - "3000:3000"
+    volumes:
+    - gafana-data:/var/lib/grafana grafana/grafana
+    - ./metrics/grafana/config.ini:/etc/grafana/config.ini
+    - ./metrics/grafana/dashboards:/var/lib/grafana/dashboards
+    - ./metrics/grafana/provisioning:/etc/grafana/provisioning
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - "9090:9090"
+    volumes:
+      - ./metrics/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - newtwork-app

@@ -18,7 +18,7 @@ class YoutubeLoader:
     def __init__(
             self,
             headers: Optional[dict] = None,
-            json_dumps: Callable[[Any], str] = None,
+            json_dumps: Optional[Callable[[Any], str]] = None,
     ):
         self._headers = headers or self.DEFAULT_HEADERS
         self._json_dumps = json_dumps or orjson.dumps

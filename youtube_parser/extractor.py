@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Literal, List
 
-from utils import from_iso_8601
+from youtube_parser.utils import from_iso_8601
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class YoutubeSearchItem:
 @dataclass()
 class YoutubeSearchResponse:
     youtube_search_items: List[YoutubeSearchItem]
-    next_page_token: str
+    next_page_token: Optional[str]
     prev_page_token: Optional[str]
     total_result: int
     result_kind: str
@@ -59,8 +59,7 @@ def extract_youtube_search_response(response: dict) -> YoutubeSearchResponse:
             channel_title = extract_channel_title_from_item_snippet(item)
             published_at = extract_published_at_from_item_snippet(item)
             live_broadcast_content = extract_live_broadcast_content_from_item_snippet(item)
-            if live_broadcast_content == 'none':
-                live_broadcast_content = None
+
             extracted_item = YoutubeSearchItem(
                 video_id=video_id,
                 published_at=published_at,
@@ -107,12 +106,18 @@ def extract_description_from_item_snippet(item: dict) -> str:
     return item['snippet']['description']
 
 
-def extract_live_broadcast_content_from_item_snippet(item: dict) -> str:
-    return item['snippet']['liveBroadcastContent']
+def extract_live_broadcast_content_from_item_snippet(item: dict) -> Optional[Literal['live', 'upcoming']]:
+    lvc = item['snippet']['liveBroadcastContent']
+    if lvc == 'none':
+        return None
+    else:
+        if lvc != 'live' and lvc != 'upcoming':
+            raise ValueError(f'liveBroadcastContent has unexpected value: {lvc}')
+    return lvc
 
 
-def extract_next_page_token_from_response(response: dict) -> str:
-    return response['nextPageToken']
+def extract_next_page_token_from_response(response: dict) -> Optional[str]:
+    return response.get('nextPageToken', None)
 
 
 def extract_prev_page_token_from_response(response: dict) -> Optional[str]:
