@@ -6,32 +6,32 @@ class Metrics:
         self.registry = prometheus_client.CollectorRegistry()
 
         self._video_processed = prometheus_client.Counter(
-            'video_precessed',
-            'Video processed count',
+            "video_precessed",
+            "Video processed count",
             labelnames=(),
-            namespace='youtube',
-            subsystem='video',
-            unit='',
+            namespace="youtube",
+            subsystem="video",
+            unit="",
             registry=self.registry,
             labelvalues=None,
         )
         self._emails_found = prometheus_client.Counter(
-            'emails_found',
-            'Emails found',
+            "emails_found",
+            "Emails found",
             labelnames=(),
-            namespace='youtube',
-            subsystem='video',
-            unit='',
+            namespace="youtube",
+            subsystem="video",
+            unit="",
             registry=self.registry,
             labelvalues=None,
         )
         self._unique_emails_found = prometheus_client.Counter(
-            'unique_emails_found',
-            'Unique emails found',
+            "unique_emails_found",
+            "Unique emails found",
             labelnames=(),
-            namespace='youtube',
-            subsystem='video',
-            unit='',
+            namespace="youtube",
+            subsystem="video",
+            unit="",
             registry=self.registry,
             labelvalues=None,
         )

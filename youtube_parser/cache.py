@@ -5,7 +5,7 @@ import redis
 
 class RedisCache:
     def __init__(self, db: int):
-        self._redis = redis.Redis(host='redis', port=6379, db=db)
+        self._redis = redis.Redis(host="redis", port=6379, db=db)
 
     def set(self, name: str, value: str) -> None:
         self._redis.set(name, value)

@@ -23,7 +23,7 @@ class YoutubeSearchItem:
     description: str
     channel_title: str
     published_at: datetime
-    live_broadcast_content: Optional[Literal['live', 'upcoming']]
+    live_broadcast_content: Optional[Literal["live", "upcoming"]]
 
 
 @dataclass()
@@ -41,24 +41,26 @@ def extract_youtube_search_response(response: dict) -> YoutubeSearchResponse:
     total_result = extract_total_result_from_response(response)
     result_kind = extract_result_kind_from_response(response)
 
-    if result_kind != 'youtube#searchListResponse':
-        raise ValueError(f'Unexpected result kind {result_kind}')
+    if result_kind != "youtube#searchListResponse":
+        raise ValueError(f"Unexpected result kind {result_kind}")
 
-    logger.info(f'Next page token {next_page_token}')
-    logger.info(f'Prev page token {prev_page_token}')
-    logger.info(f'Total result {total_result}')
+    logger.info(f"Next page token {next_page_token}")
+    logger.info(f"Prev page token {prev_page_token}")
+    logger.info(f"Total result {total_result}")
 
     items: List[YoutubeSearchItem] = []
-    for item in response['items']:
-        kind = item['kind']
-        if kind == 'youtube#searchResult':
+    for item in response["items"]:
+        kind = item["kind"]
+        if kind == "youtube#searchResult":
             video_id = extract_video_id_from_item(item)
             channel_id = extract_channel_id_from_item_snippet(item)
             title = extract_title_from_item_snippet(item)
             description = extract_description_from_item_snippet(item)
             channel_title = extract_channel_title_from_item_snippet(item)
             published_at = extract_published_at_from_item_snippet(item)
-            live_broadcast_content = extract_live_broadcast_content_from_item_snippet(item)
+            live_broadcast_content = extract_live_broadcast_content_from_item_snippet(
+                item
+            )
 
             extracted_item = YoutubeSearchItem(
                 video_id=video_id,
@@ -71,7 +73,7 @@ def extract_youtube_search_response(response: dict) -> YoutubeSearchResponse:
             )
             items.append(extracted_item)
         else:
-            logger.error(f'Unexpected item kind {kind}')
+            logger.error(f"Unexpected item kind {kind}")
     result = YoutubeSearchResponse(
         youtube_search_items=items,
         next_page_token=next_page_token,
@@ -83,53 +85,55 @@ def extract_youtube_search_response(response: dict) -> YoutubeSearchResponse:
 
 
 def extract_video_id_from_item(item: dict) -> str:
-    return item['id']['videoId']
+    return item["id"]["videoId"]
 
 
 def extract_published_at_from_item_snippet(item: dict) -> datetime:
-    return from_iso_8601(item['snippet']['publishedAt'])
+    return from_iso_8601(item["snippet"]["publishedAt"])
 
 
 def extract_channel_id_from_item_snippet(item: dict) -> str:
-    return item['snippet']['channelId']
+    return item["snippet"]["channelId"]
 
 
 def extract_channel_title_from_item_snippet(item: dict) -> str:
-    return item['snippet']['channelTitle']
+    return item["snippet"]["channelTitle"]
 
 
 def extract_title_from_item_snippet(item: dict) -> str:
-    return item['snippet']['title']
+    return item["snippet"]["title"]
 
 
 def extract_description_from_item_snippet(item: dict) -> str:
-    return item['snippet']['description']
+    return item["snippet"]["description"]
 
 
-def extract_live_broadcast_content_from_item_snippet(item: dict) -> Optional[Literal['live', 'upcoming']]:
-    lvc = item['snippet']['liveBroadcastContent']
-    if lvc == 'none':
+def extract_live_broadcast_content_from_item_snippet(
+    item: dict,
+) -> Optional[Literal["live", "upcoming"]]:
+    lvc = item["snippet"]["liveBroadcastContent"]
+    if lvc == "none":
         return None
     else:
-        if lvc != 'live' and lvc != 'upcoming':
-            raise ValueError(f'liveBroadcastContent has unexpected value: {lvc}')
+        if lvc != "live" and lvc != "upcoming":
+            raise ValueError(f"liveBroadcastContent has unexpected value: {lvc}")
     return lvc
 
 
 def extract_next_page_token_from_response(response: dict) -> Optional[str]:
-    return response.get('nextPageToken', None)
+    return response.get("nextPageToken", None)
 
 
 def extract_prev_page_token_from_response(response: dict) -> Optional[str]:
-    return response.get('prevPageToken', None)
+    return response.get("prevPageToken", None)
 
 
 def extract_total_result_from_response(response: dict) -> int:
-    return int(response['pageInfo']['totalResults'])
+    return int(response["pageInfo"]["totalResults"])
 
 
 def extract_result_kind_from_response(response: dict) -> str:
-    return response['kind']
+    return response["kind"]
 
 
 def parse_email(string: str) -> List[str]:
