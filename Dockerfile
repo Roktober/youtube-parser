@@ -1,4 +1,4 @@
-FROM python:3.9.4-slim-buster as common-deps
+FROM python:3.9.5-slim-buster as common-deps
 LABEL Description="Yotube parser" Author="Roktober"
 
 RUN groupadd --system youtube_parser && useradd --no-log-init --shell /bin/false --system --gid youtube_parser youtube_parser
