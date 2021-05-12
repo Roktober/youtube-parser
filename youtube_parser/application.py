@@ -12,6 +12,7 @@ from youtube_parser.loader import (
     SearchVideoDuration,
 )
 from youtube_parser.metrics import Metrics
+from youtube_parser.scheduler import Scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class Application:
         self._metrics = Metrics()
         self._cache = RedisCache(db=1)
         self._youtube_loader = YoutubeLoader()
+        self._scheduler = Scheduler()
 
     async def run(self):
         logger.info("Start metrics")
@@ -43,7 +45,11 @@ class Application:
             search_param=params,
         )
 
-        await parser.parse()
+        # Google paid 10 000 credits
+        # Search cost 100
+        self._scheduler.add_job(func=parser.parse, trigger="cron", minute="*/15")
+        self._scheduler.start()
 
     async def stop(self):
+        self._scheduler.stop()
         await self._youtube_loader.close_session()

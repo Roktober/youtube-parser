@@ -32,6 +32,4 @@ COPY --from=dev-unittested ${APP_DIR}/youtube_parser ./youtube_parser
 
 USER youtube_parser
 
-EXPOSE 8080
-
 CMD python -m youtube_parser

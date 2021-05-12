@@ -32,6 +32,8 @@ class Parser:
             return None
         emails = _parse_emails(data)
         unique_emails = self._get_unique_emails(emails)
+        if unique_emails:
+            self._save_emails(unique_emails)
 
         self._metrics.emails_found.inc(len(emails))
         self._metrics.unique_emails_found.inc(len(unique_emails))
@@ -50,9 +52,10 @@ class Parser:
         if emails:
             unique_emails = self._email_cache.filter(emails)
             logger.info(f"Found {len(unique_emails)} unique emails: {unique_emails}")
-            if unique_emails:
-                self._email_cache.mset({u_email: "" for u_email in unique_emails})
         return unique_emails
+
+    def _save_emails(self, emails: List[str]) -> None:
+        self._email_cache.mset({u_email: "" for u_email in emails})
 
 
 def _parse_emails(parsed_response: YoutubeSearchResponse) -> List[str]:

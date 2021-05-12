@@ -15,8 +15,6 @@ services:
     networks:
       - newtwork-app
     command: python -m youtube_parser
-    ports:
-      - "8000:8000"
     depends_on:
       - redis
       - prometheus
@@ -30,8 +28,6 @@ services:
     image: redis:6.2.1-alpine
     volumes:
       - redis-data:/data
-    ports:
-      - "6379:6379"
     networks:
       - newtwork-app
 
@@ -49,8 +45,6 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    ports:
-    - "9090:9090"
     volumes:
       - ./metrics/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
